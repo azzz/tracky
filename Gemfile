@@ -12,6 +12,7 @@ gem 'puma', '~> 3.7'
 group :development, :test do
   gem 'pry'
   gem 'factory_girl_rails'
+  gem 'ffaker'
 end
 
 group :development do
