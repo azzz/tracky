@@ -1,0 +1,252 @@
+require:
+  - rubocop-rspec
+
+AllCops:
+  Include:
+    - '**/Capfile'
+    - '**/Gemfile'
+    - '**/Guardfile'
+    - '**/Rakefile'
+    - '**/config.ru'
+    - '**/Vagrantfile'
+  Exclude:
+    - 'bundle/**/*'
+    - 'db/**/*'
+    - 'log/**/*'
+    - 'provision/**/*'
+    - 'public/**/*'
+    - 'tmp/**/*'
+    - 'vendor/**/*'
+  DisplayCopNames: true
+  TargetRubyVersion: 2.4
+
+ClassAndModuleChildren:
+  Enabled: false
+
+ClassLength:
+  Enabled: false
+
+Documentation:
+  Enabled: false
+
+EmptyLinesAroundClassBody:
+  Enabled: false
+
+EmptyLinesAroundModuleBody:
+  Enabled: false
+
+PredicateName:
+  Enabled: false
+
+LineLength:
+  Enabled: false
+
+MethodLength:
+  Enabled: false
+
+SpaceBeforeFirstArg:
+  Enabled: false
+
+TrailingCommaInArguments:
+  EnforcedStyleForMultiline: no_comma
+
+TrailingCommaInLiteral:
+  EnforcedStyleForMultiline: no_comma
+
+SpaceInsideHashLiteralBraces:
+  EnforcedStyle: no_space
+
+MultilineOperationIndentation:
+  EnforcedStyle: indented
+
+MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+SignalException:
+  EnforcedStyle: semantic
+
+PercentLiteralDelimiters:
+  PreferredDelimiters:
+    '%r': '{}'
+    '%i': '[]'
+    '%w': '[]'
+    '%W': '[]'
+    '%Q': '{}'
+
+Bundler/OrderedGems:
+  Enabled: false
+
+Rails:
+  Enabled: true
+
+Rails/ReadWriteAttribute:
+  Enabled: false
+
+Rails/SkipsModelValidations:
+  Exclude:
+    - "**/*_spec.rb"
+    - "**/spec/**/*"
+
+Layout/EmptyLineAfterMagicComment:
+  Enabled: false
+
+Style/EmptyMethod:
+  EnforcedStyle: expanded
+
+Style/FormatStringToken:
+  Enabled: false
+
+Style/MethodCallWithArgsParentheses:
+  Enabled: false
+
+Style/Send:
+  Enabled: true
+
+Style/UnneededPercentQ:
+  Enabled: true
+
+Style/Lambda:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/OptionHash:
+  Enabled: true
+
+Metrics/BlockLength:
+  Enabled: false
+
+Lint/AmbiguousBlockAssociation:
+  Enabled: false
+
+Lint/UselessAccessModifier:
+  ContextCreatingMethods:
+    - projector
+
+Metrics/ModuleLength:
+  Exclude:
+    - "**/*_spec.rb"
+
+Style/BracesAroundHashParameters:
+  EnforcedStyle: context_dependent
+
+Style/NumericPredicate:
+  Enabled: false
+
+RSpec/AnyInstance:
+  Enabled: false
+
+RSpec/BeEql:
+  Enabled: false
+
+RSpec/DescribeClass:
+  Enabled: false
+
+RSpec/DescribedClass:
+  Enabled: true
+  SkipBlocks: true
+
+RSpec/DescribeMethod:
+  Enabled: false
+
+RSpec/EmptyExampleGroup:
+  Enabled: true
+
+RSpec/EmptyLineAfterFinalLet:
+  Enabled: false
+
+RSpec/EmptyLineAfterSubject:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Enabled: false
+
+RSpec/ExampleWording:
+  Enabled: true
+
+RSpec/ExpectActual:
+  Enabled: true
+
+RSpec/ExpectOutput:
+  Enabled: true
+
+RSpec/FilePath:
+  Enabled: true
+
+RSpec/Focus:
+  Enabled: true
+
+RSpec/HookArgument:
+  Enabled: true
+
+RSpec/ImplicitExpect:
+  Enabled: true
+
+RSpec/InstanceVariable:
+  Enabled: true
+
+RSpec/LeadingSubject:
+  Enabled: true
+
+RSpec/LetSetup:
+  Enabled: false
+
+RSpec/MessageChain:
+  Enabled: false
+
+RSpec/MessageExpectation:
+  Enabled: false
+
+RSpec/MessageSpies:
+  Enabled: false
+
+RSpec/MultipleDescribes:
+  Enabled: true
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/NamedSubject:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+RSpec/NotToNot:
+  Enabled: false
+
+RSpec/RepeatedDescription:
+  Enabled: true
+
+RSpec/RepeatedExample:
+  Enabled: true
+
+RSpec/ScatteredLet:
+  Enabled: false
+
+RSpec/SingleArgumentMessageChain:
+  Enabled: true
+
+RSpec/ScatteredSetup:
+  Enabled: true
+
+RSpec/SubjectStub:
+  Enabled: false
+
+RSpec/VerifiedDoubles:
+  Enabled: true
+
+RSpec/LeakyConstantDeclaration:
+  Enabled: true
+  Include:
+    - 'spec/**/*_spec.rb'
+    - 'spec/support/shared_examples/**/*.rb'
+
+FactoryGirl/DynamicAttributeDefinedStatically:
+  Enabled: true
+
+Rails/ApplicationRecord:
+  Enabled: true
+  Exclude:
+    - db/migrate/*.rb
