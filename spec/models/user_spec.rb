@@ -10,4 +10,20 @@ RSpec.describe User do
     it { is_expected.to have_many :issues }
     it { is_expected.to have_many(:assigned_issues).class_name('Issue') }
   end
+
+  describe '#client?' do
+    let(:worm) { FactoryGirl.create :user, :client }
+    let(:daenerys) { FactoryGirl.create :user, :manager }
+
+    it { expect(worm).to be_client }
+    it { expect(daenerys).not_to be_client }
+  end
+
+  describe '#manager?' do
+    let(:worm) { FactoryGirl.create :user, :client }
+    let(:daenerys) { FactoryGirl.create :user, :manager }
+
+    it { expect(worm).not_to be_manager }
+    it { expect(daenerys).to be_manager }
+  end
 end

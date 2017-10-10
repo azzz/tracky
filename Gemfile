@@ -8,6 +8,7 @@ end
 gem 'rails', '~> 5.1.4'
 gem 'pg', '~> 0.18'
 gem 'puma', '~> 3.7'
+gem 'cancancan', '~> 2.0'
 gem 'knock'
 gem 'bcrypt'
 

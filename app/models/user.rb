@@ -10,4 +10,10 @@ class User < ApplicationRecord
   validates :email, :full_name, :role, presence: true
   validates :role, inclusion: {in: ROLES}
   validates :email, uniqueness: true
+
+  ROLES.each do |role_name|
+    define_method "#{role_name}?" do
+      role == role_name
+    end
+  end
 end

@@ -41,6 +41,7 @@ GEM
     arel (8.0.0)
     bcrypt (3.1.11)
     builder (3.2.3)
+    cancancan (2.0.0)
     coderay (1.1.2)
     concurrent-ruby (1.0.5)
     crass (1.0.2)
@@ -155,6 +156,7 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt
+  cancancan (~> 2.0)
   database_cleaner
   factory_girl_rails
   ffaker
