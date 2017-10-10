@@ -6,6 +6,8 @@ abort('The Rails environment is running in production mode!') if Rails.env.produ
 
 require 'rspec/rails'
 
+require_relative './support/knock_helpers'
+
 ActiveRecord::Migration.maintain_test_schema!
 
 Shoulda::Matchers.configure do |config|
@@ -23,6 +25,11 @@ RSpec.configure do |config|
 
   config.include Shoulda::Matchers::ActiveRecord, type: :model
   config.include Shoulda::Matchers::ActiveModel, type: :model
+  config.include KnockHelpers, type: :controller
+
+  config.define_derived_metadata do |metadata|
+    metadata[:aggregate_failures] = true unless metadata.key?(:aggregate_failures)
+  end
 
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
