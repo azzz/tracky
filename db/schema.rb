@@ -18,9 +18,9 @@ ActiveRecord::Schema.define(version: 20171010184701) do
   create_table "issues", force: :cascade do |t|
     t.bigint "author_id", null: false
     t.bigint "assignee_id"
-    t.string "title", default: "pending", null: false
+    t.string "title", null: false
     t.text "description"
-    t.string "status", null: false
+    t.string "status", default: "pending", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["assignee_id"], name: "index_issues_on_assignee_id"
@@ -38,7 +38,7 @@ ActiveRecord::Schema.define(version: 20171010184701) do
   create_table "users", force: :cascade do |t|
     t.string "email", null: false
     t.string "full_name", null: false
-    t.string "role", default: "user", null: false
+    t.string "role", default: "client", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "password_digest", null: false

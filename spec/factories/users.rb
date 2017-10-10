@@ -4,10 +4,10 @@ FactoryGirl.define do
     full_name { FFaker::Name.name }
     password 'password'
     password_confirmation 'password'
-    role 'user'
+    role 'client'
 
-    trait :regular do
-      role 'user'
+    trait :client do
+      role 'client'
     end
 
     trait :manager do

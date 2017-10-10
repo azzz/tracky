@@ -17,7 +17,7 @@ RSpec.describe UsersController do
       it do
         subject
         expect(created_user.email).to eql 'john@local.host'
-        expect(created_user.role).to eql 'user'
+        expect(created_user.role).to eql 'client'
       end
     end
 
