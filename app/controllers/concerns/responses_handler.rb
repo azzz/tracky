@@ -3,6 +3,7 @@ module ResponsesHandler
 
   included do
     rescue_from ActiveRecord::RecordInvalid, with: :render_422
+    rescue_from ActiveRecord::RecordNotFound, with: :render_404
     rescue_from CanCan::AccessDenied, with: :render_401
   end
 

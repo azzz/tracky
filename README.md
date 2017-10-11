@@ -67,7 +67,151 @@ It does not request password confirmation because it's absolutely UI responsibil
 |Code| Content              | Description                                |
 |----|----------------------|--------------------------------------------|
 |422 | Unprocessable Entity | A validation error                         |
-|201 | `{jwt:string}`       | a JSON Web token for future authorizations |
+|201 | `{jwt:string}`       | A JSON Web token for future authorizations |
 
 ### Example
 `curl -H "Content-Type: application/json" -i -X POST -d '{"user": {"email":"john@local.host", "password":"12345678", "full_name":"John Snow"}}' http://localhost:3000/users`
+
+## GET `/issues` to get list of issues
+
+### Authorization
+
+Any roles are allowed to get list of issues. Clients receive only issues created by them, but managers receive all existing issues.
+
+### Responses
+
+|Code| Content                 | Description                                |
+|----|-------------------------|--------------------------------------------|
+|200 | `{issues:array<object>}`| A list of issues                           |
+
+### Example
+`curl -i -H "Content-Type: application/json" -H "Authorization: Bearer <<token>>" http://localhost:3000/issues`
+
+```
+  {
+    "issues":
+      [
+        {"id":1,
+         "author_id": 1,
+         "assignee_id": 2,
+         "title": "Protect the North",
+         "description": "You must protect the North",
+         "status": "pending",
+         "created_at": "2017-10-11T17:25:38.967Z",
+         "updated_at": "2017-10-11T17:25:38.967Z"},
+
+         ...
+      ]
+   }
+```
+
+## GET `/issues/:id` to read an issue
+
+### Authorization
+
+Any roles are allowed to read an issue. Clients can read only issues created by them, but managers can read any issue.
+
+### Responses
+
+|Code| Content         | Description                               |
+|----|-----------------|-------------------------------------------|
+|200 | `{issue:object}`| Issue object                              |
+|401 | none            | If user does not have access to the issue |
+|404 | none            | If issue does not exist                   |
+
+### Example
+`curl -i -H "Content-Type: application/json" -H "Authorization: Bearer <<token>>" http://localhost:3000/issues/1`
+
+```
+{
+  "issue": {
+    "id": 1,
+    "author_id": 1,
+    "assignee_id": 2,
+    "title": "Protect the North",
+    "description": "You must protect the North",
+    "status": "pending",
+    "created_at": "2017-10-11T17:25:38.967Z",
+    "updated_at": "2017-10-11T17:25:38.967Z"
+  }
+}
+```
+
+## POST `/issues` to create an issue
+
+### Authorization
+Any roles can create issues in any status. Issues in non-pending status must have assignee_id.
+
+### Receives
+JSON `{issue:object}` where object is attributes object. Can get next attributes:
+
+- `title:string`. Required. Short title of the issue.
+- `description:text`. Optional. Details description of the issue.
+- `status:string`. Optional. Allowed values: `pending`, `in_progress`, `resolved`. By default, `pending`
+- `assignee_id:integer`. Optional if status is missing or `pending`.
+
+### Responses
+
+|Code| Content         | Description                               |
+|----|-----------------|-------------------------------------------|
+|200 | `{issue:object}`| Issue object                              |
+|422 | none            | A validation error                        |
+
+### Example
+`curl -i -H "Content-Type: application/json" -H "Authorization: Bearer <<token>>" -X POST -d '{"issue": {"title":"Hello World", "description":"Please help me they turned me in a parrot"}}' http://localhost:3000/issues`
+
+```
+{
+  "issue": {
+    "id": 4,
+    "author_id": 1,
+    "assignee_id": null,
+    "title": "Hello World",
+    "description": "Please help me they turned me in a parrot",
+    "status": "pending",
+    "created_at": "2017-10-11T18:27:47.043Z",
+    "updated_at": "2017-10-11T18:27:47.043Z"
+  }
+}
+```
+
+## PUT `/issues/:id` to update an issue
+
+### Authorization
+
+Any roles are allowed to update issues. Clients can update only issues created by them, but managers can update any issue.
+
+### Receives
+JSON `{issue:object}` where object is attributes object. Can get next attributes:
+
+- `title:string`. Required. Short title of the issue.
+- `description:text`. Optional. Details description of the issue.
+- `status:string`. Optional. Allowed values: `pending`, `in_progress`, `resolved`. By default, `pending`
+- `assignee_id:integer`. Optional if status is missing or `pending`.
+
+Skipped attributes will not be applied to the issue as null (or "") values.
+
+### Responses
+
+|Code| Content         | Description                               |
+|----|-----------------|-------------------------------------------|
+|200 | `{issue:object}`| Issue object                              |
+|422 | none            | A validation error                        |
+
+### Example
+`curl -i -H "Content-Type: application/json" -H "Authorization: Bearer <<token>>" -X PUT -d '{"issue": {"title":"Find a magic wand"}}' http://localhost:3000/issues/4`
+
+```
+{
+  "issue": {
+    "id": 4,
+    "author_id": 1,
+    "assignee_id": null,
+    "title": "Find a magic wand",
+    "description": "Please help me they turned me in a parrot",
+    "status": "pending",
+    "created_at": "2017-10-11T18:27:47.043Z",
+    "updated_at": "2017-10-11T18:27:47.043Z"
+  }
+}
+```
