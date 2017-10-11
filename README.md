@@ -39,17 +39,17 @@ All errors contain `message` key (e.g. 'Not Found' or 'Validation failed: Full n
 
 ### `POST /user_token` to get a JSON Web Token
 
-#### Receives
+##### Receives
 JSON `{auth: {email:string, password:string}}`
 
-#### Responses
+##### Responses
 
 |Code| Content        | Description                                       |
 |----|----------------|---------------------------------------------------|
 |404 | Not Found      | When user does not exist or password is incorrect |
 |201 | `{jwt:string}` | A JSON Web token for future authorizations        |
 
-#### Example
+##### Example
 `curl -H "Content-Type: application/json" -i -X POST -d '{"auth": {"email":"john@local.host", "password":"12345678"}}' http://localhost:3000/user_token`
 
 Check the given token:
@@ -57,40 +57,70 @@ Check the given token:
 
 ### `POST /users` to create (register) users
 
-### Receives
+#### Receives
 JSON `{user: {email:string, password:string, full_name:string}}`.
 
 It does not request password confirmation because it's absolutely UI responsibility to help the user enter correct password.
 
-### Responses
+#### Responses
 
 |Code| Content              | Description                                |
 |----|----------------------|--------------------------------------------|
 |422 | Unprocessable Entity | A validation error                         |
 |201 | `{jwt:string}`       | A JSON Web token for future authorizations |
 
-### Example
+#### Example
 `curl -H "Content-Type: application/json" -i -X POST -d '{"user": {"email":"john@local.host", "password":"12345678", "full_name":"John Snow"}}' http://localhost:3000/users`
 
-## GET `/issues` to get list of issues
+### GET `/users/:id` to read an user
 
-### Receives
+#### Authorization
+
+Any roles are allowed to read an user. Clients can read only themselves, but managers can read any user.
+
+#### Responses
+
+|Code| Content         | Description                                             |
+|----|-----------------|---------------------------------------------------------|
+|200 | `{user:object}` | User object                                             |
+|401 | none            | If the user does not have access to read the given user |
+|404 | none            | If the given user does not exist                        |
+
+#### Example
+`curl -i -H "Content-Type: application/json" -H "Authorization: Bearer <<token>>" http://localhost:3000/users/1`
+
+```
+{
+  "user": {
+    "id": 1,
+    "email": "email.1@example.com",
+    "full_name": "Pandora Dibbert",
+    "role": "client",
+    "created_at": "2017-10-11T17:20:35.720Z",
+    "updated_at": "2017-10-11T17:20:35.720Z"
+  }
+}
+```
+
+### GET `/issues` to get list of issues
+
+#### Authorization
+
+Any roles are allowed to get list of issues. Clients receive only issues created by them, but managers receive all existing issues.
+
+#### Receives
 
 GET arguments:
 - `offset:integer` Optional. A number how it should offset the result. By default, 0. I.e. shows from the beginning.
 - `limit:integer` Optional. A number to limit the response. By default, 10. Maximum, 100.
 
-### Authorization
-
-Any roles are allowed to get list of issues. Clients receive only issues created by them, but managers receive all existing issues.
-
-### Responses
+#### Responses
 
 |Code| Content                 | Description                                |
 |----|-------------------------|--------------------------------------------|
 |200 | `{issues:array<object>}`| A list of issues                           |
 
-### Example
+#### Example
 `curl -i -H "Content-Type: application/json" -H "Authorization: Bearer <<token>>" http://localhost:3000/issues?limit=42`
 
 ```
@@ -111,13 +141,13 @@ Any roles are allowed to get list of issues. Clients receive only issues created
    }
 ```
 
-## GET `/issues/:id` to read an issue
+### GET `/issues/:id` to read an issue
 
-### Authorization
+#### Authorization
 
 Any roles are allowed to read an issue. Clients can read only issues created by them, but managers can read any issue.
 
-### Responses
+#### Responses
 
 |Code| Content         | Description                               |
 |----|-----------------|-------------------------------------------|
@@ -125,7 +155,7 @@ Any roles are allowed to read an issue. Clients can read only issues created by 
 |401 | none            | If user does not have access to the issue |
 |404 | none            | If issue does not exist                   |
 
-### Example
+#### Example
 `curl -i -H "Content-Type: application/json" -H "Authorization: Bearer <<token>>" http://localhost:3000/issues/1`
 
 ```
@@ -143,12 +173,12 @@ Any roles are allowed to read an issue. Clients can read only issues created by 
 }
 ```
 
-## POST `/issues` to create an issue
+### POST `/issues` to create an issue
 
-### Authorization
+#### Authorization
 Any roles can create issues in any status. Issues in non-pending status must have assignee_id.
 
-### Receives
+#### Receives
 JSON `{issue:object}` where object is attributes object. Can get next attributes:
 
 - `title:string`. Required. Short title of the issue.
@@ -156,14 +186,14 @@ JSON `{issue:object}` where object is attributes object. Can get next attributes
 - `status:string`. Optional. Allowed values: `pending`, `in_progress`, `resolved`. By default, `pending`
 - `assignee_id:integer`. Optional if status is missing or `pending`.
 
-### Responses
+#### Responses
 
 |Code| Content         | Description                               |
 |----|-----------------|-------------------------------------------|
 |200 | `{issue:object}`| Issue object                              |
 |422 | none            | A validation error                        |
 
-### Example
+#### Example
 `curl -i -H "Content-Type: application/json" -H "Authorization: Bearer <<token>>" -X POST -d '{"issue": {"title":"Hello World", "description":"Please help me they turned me in a parrot"}}' http://localhost:3000/issues`
 
 ```
@@ -181,13 +211,13 @@ JSON `{issue:object}` where object is attributes object. Can get next attributes
 }
 ```
 
-## PUT `/issues/:id` to update an issue
+### PUT `/issues/:id` to update an issue
 
-### Authorization
+#### Authorization
 
 Any roles are allowed to update issues. Clients can update only issues created by them, but managers can update any issue.
 
-### Receives
+#### Receives
 JSON `{issue:object}` where object is attributes object. Can get next attributes:
 
 - `title:string`. Required. Short title of the issue.
@@ -197,14 +227,14 @@ JSON `{issue:object}` where object is attributes object. Can get next attributes
 
 Skipped attributes will not be applied to the issue as null (or "") values.
 
-### Responses
+#### Responses
 
 |Code| Content         | Description                               |
 |----|-----------------|-------------------------------------------|
 |200 | `{issue:object}`| Issue object                              |
 |422 | none            | A validation error                        |
 
-### Example
+#### Example
 `curl -i -H "Content-Type: application/json" -H "Authorization: Bearer <<token>>" -X PUT -d '{"issue": {"title":"Find a magic wand"}}' http://localhost:3000/issues/4`
 
 ```

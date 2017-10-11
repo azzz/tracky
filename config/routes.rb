@@ -3,6 +3,6 @@ Rails.application.routes.draw do
   post 'user_token' => 'user_token#create'
   get '/secret' => 'home#secret'
 
-  resources :users, only: %i[create]
+  resources :users, only: %i[create show]
   resources :issues, only: %i[create index update show]
 end

@@ -15,9 +15,10 @@ class Ability
   def client_abilities(user)
     can :create, Issue
     can :manage, Issue, author_id: user.id
+    can :read, User, id: user.id
   end
 
   def visitor_abilities(_user)
-    # ... nothing yet
+    can :create, User
   end
 end

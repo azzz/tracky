@@ -1,4 +1,17 @@
 RSpec.describe UsersController do
+  def user_as_json(user)
+    {
+      'created_at' => user.created_at.as_json,
+      'updated_at' => user.updated_at.as_json,
+      'email' => user.email,
+      'full_name' => user.full_name,
+      'id' => user.id,
+      'role' => user.role
+    }
+  end
+
+  let(:json) { JSON.parse response.body }
+
   describe 'POST #create' do
     subject { post :create, params: {user: attributes} }
 
@@ -44,6 +57,68 @@ RSpec.describe UsersController do
         expect(json['errors']).to eql('email' => ["can't be blank"],
                                       'full_name' => ["can't be blank"],
                                       'password' => ["can't be blank"])
+      end
+    end
+  end
+
+  describe 'GET #show' do
+    subject { get :show, params: {id: id} }
+
+    let(:current_user) { FactoryGirl.create :user, :manager }
+    let(:another_user) { FactoryGirl.create :user }
+
+    context 'for unauthorized user' do
+      let(:id) { current_user.id }
+
+      it { is_expected.to have_http_status(401) }
+    end
+
+    context 'for manager' do
+      before { request.headers.merge! HTTP_AUTHORIZATION: "Bearer #{token_for_user(current_user)}" }
+
+      context 'when read self' do
+        let(:id) { current_user.id }
+
+        it { is_expected.to have_http_status(200) }
+
+        it do
+          subject
+          expect(json['user']).to eql(user_as_json(current_user))
+        end
+      end
+
+      context 'when read another user' do
+        let(:id) { another_user.id }
+
+        it { is_expected.to have_http_status(200) }
+
+        it do
+          subject
+          expect(json['user']).to eql(user_as_json(another_user))
+        end
+      end
+    end
+
+    context 'for client' do
+      let(:current_user) { FactoryGirl.create :user, :client }
+
+      before { request.headers.merge! HTTP_AUTHORIZATION: "Bearer #{token_for_user(current_user)}" }
+
+      context 'when read self' do
+        let(:id) { current_user.id }
+
+        it { is_expected.to have_http_status(200) }
+
+        it do
+          subject
+          expect(json['user']).to eql(user_as_json(current_user))
+        end
+      end
+
+      context 'when read another user' do
+        let(:id) { another_user.id }
+
+        it { is_expected.to have_http_status(401) }
       end
     end
   end
