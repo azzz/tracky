@@ -8,8 +8,15 @@ class Issue < ApplicationRecord
 
   validates :title, :status, :author, presence: true
   validates :status, inclusion: {in: STATUSES}
+  validates :assignee, presence: true, if: ->(issue) { issue.status.in?(STATUSES) && !issue.pending? }
 
   after_save :save_status
+
+  STATUSES.each do |status_name|
+    define_method "#{status_name}?" do
+      status == status_name
+    end
+  end
 
   private
 

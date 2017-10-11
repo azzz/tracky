@@ -12,16 +12,16 @@ RSpec.describe User do
   end
 
   describe '#client?' do
-    let(:worm) { FactoryGirl.create :user, :client }
-    let(:daenerys) { FactoryGirl.create :user, :manager }
+    let(:worm) { FactoryGirl.build :user, :client }
+    let(:daenerys) { FactoryGirl.build :user, :manager }
 
     it { expect(worm).to be_client }
     it { expect(daenerys).not_to be_client }
   end
 
   describe '#manager?' do
-    let(:worm) { FactoryGirl.create :user, :client }
-    let(:daenerys) { FactoryGirl.create :user, :manager }
+    let(:worm) { FactoryGirl.build :user, :client }
+    let(:daenerys) { FactoryGirl.build :user, :manager }
 
     it { expect(worm).not_to be_manager }
     it { expect(daenerys).to be_manager }

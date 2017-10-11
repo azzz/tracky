@@ -12,6 +12,29 @@ RSpec.describe IssuesController do
      'updated_at' => issue.updated_at.as_json}
   end
 
+  shared_examples 'validate attributes on update' do
+    let(:attributes) { {title: '', status: 'exterminate'} }
+
+    it 'responds with vaidation errors' do
+      subject
+      expect(json).to eql('errors' => {'title' => ["can't be blank"],
+                                       'status' => ['is not included in the list']},
+                          'message' => "Validation failed: Title can't be blank, Status is not included in the list")
+    end
+
+    context 'changing issue to status that requires assegnee' do
+      let(:attributes) { {title: 'Hello World', status: 'resolved'} }
+
+      before { issue.update_attribute :assignee, nil }
+
+      it 'responds with vaidation errors' do
+        subject
+        expect(json).to eql('errors' => {'assignee' => ["can't be blank"]},
+                            'message' => "Validation failed: Assignee can't be blank")
+      end
+    end
+  end
+
   describe 'GET #index' do
     subject { get :index }
 
@@ -132,15 +155,13 @@ RSpec.describe IssuesController do
   end
 
   describe 'PUT #update' do
-    subject { put :update, params: {id: id, issue: attributes} }
+    subject { put :update, params: {id: issue.id, issue: attributes} }
 
     let(:john) { FactoryGirl.create :user, :client }
-    let!(:john_issue) { FactoryGirl.create :issue, title: 'Protect the North', author: john }
-    let!(:aria_issue) { FactoryGirl.create :issue, title: 'Return to the North' }
+    let(:issue) { FactoryGirl.create :issue }
     let(:attributes) { {title: 'Hello World'} }
 
     context 'for unauthorized user' do
-      let(:id) { john_issue.id }
       it { is_expected.to have_http_status(401) }
       it do
         subject
@@ -152,19 +173,27 @@ RSpec.describe IssuesController do
       before { request.headers.merge! HTTP_AUTHORIZATION: "Bearer #{token_for_user(john)}" }
 
       context 'when updates theirown issue' do
-        let(:id) { john_issue.id }
+        let(:issue) { FactoryGirl.create :issue, author: john }
 
         it { is_expected.to have_http_status(200) }
+
         it 'updates given issue' do
-          expect { subject }.to change { john_issue.reload.title }.to('Hello World')
+          expect { subject }.to change { issue.reload.title }.to('Hello World')
         end
+
+        it 'responds with created issue' do
+          subject
+          expect(json['issue']).to eql(issue_as_json(issue.reload))
+        end
+
+        it_behaves_like 'validate attributes on update'
       end
 
       context 'when updates another issue' do
-        let(:id) { aria_issue.id }
+        let(:issue) { FactoryGirl.create :issue }
 
         it { is_expected.to have_http_status(401) }
-        it { expect { subject }.not_to change { john_issue.reload } }
+        it { expect { subject }.not_to change { issue.reload } }
       end
     end
 
@@ -174,34 +203,48 @@ RSpec.describe IssuesController do
       before { request.headers.merge! HTTP_AUTHORIZATION: "Bearer #{token_for_user(john)}" }
 
       context 'when updates theirown issue' do
-        let(:id) { john_issue.id }
+        let(:issue) { FactoryGirl.create :issue, author: john }
 
         it { is_expected.to have_http_status(200) }
+
         it 'updates given issue' do
-          expect { subject }.to change { john_issue.reload.title }.to('Hello World')
+          expect { subject }.to change { issue.reload.title }.to('Hello World')
         end
+
+        it 'responds with created issue' do
+          subject
+          expect(json['issue']).to eql(issue_as_json(issue.reload))
+        end
+
+        it_behaves_like 'validate attributes on update'
       end
 
       context 'when updates another issue' do
-        let(:id) { aria_issue.id }
+        let(:issue) { FactoryGirl.create :issue }
 
         it { is_expected.to have_http_status(200) }
+
         it 'updates given issue' do
-          expect { subject }.to change { aria_issue.reload.title }.to('Hello World')
+          expect { subject }.to change { issue.reload.title }.to('Hello World')
         end
+
+        it 'responds with created issue' do
+          subject
+          expect(json['issue']).to eql(issue_as_json(issue.reload))
+        end
+
+        it_behaves_like 'validate attributes on update'
       end
     end
   end
 
   describe 'GET #show' do
-    subject { get :show, params: {id: id} }
+    subject { get :show, params: {id: issue.id} }
 
     let(:john) { FactoryGirl.create :user, :client }
-    let!(:john_issue) { FactoryGirl.create :issue, author: john }
-    let!(:aria_issue) { FactoryGirl.create :issue }
+    let!(:issue) { FactoryGirl.create :issue }
 
     context 'for unauthorized user' do
-      let(:id) { john_issue.id }
       it { is_expected.to have_http_status(401) }
       it do
         subject
@@ -213,17 +256,18 @@ RSpec.describe IssuesController do
       before { request.headers.merge! HTTP_AUTHORIZATION: "Bearer #{token_for_user(john)}" }
 
       context 'when gets theirown issue' do
-        let(:id) { john_issue.id }
+        let!(:issue) { FactoryGirl.create :issue, author: john }
 
         it { is_expected.to have_http_status(200) }
+
         it 'responds with issue' do
           subject
-          expect(json['issue']).to eql(issue_as_json(john_issue))
+          expect(json['issue']).to eql(issue_as_json(issue))
         end
       end
 
       context 'when gets another issue' do
-        let(:id) { aria_issue.id }
+        let!(:issue) { FactoryGirl.create :issue }
 
         it { is_expected.to have_http_status(401) }
         it { expect(response.body).to be_empty }
@@ -236,22 +280,24 @@ RSpec.describe IssuesController do
       before { request.headers.merge! HTTP_AUTHORIZATION: "Bearer #{token_for_user(john)}" }
 
       context 'when gets theirown issue' do
-        let(:id) { john_issue.id }
+        let!(:issue) { FactoryGirl.create :issue, author: john }
 
         it { is_expected.to have_http_status(200) }
+
         it 'responds with issue' do
           subject
-          expect(json['issue']).to eql(issue_as_json(john_issue))
+          expect(json['issue']).to eql(issue_as_json(issue))
         end
       end
 
       context 'when gets another issue' do
-        let(:id) { aria_issue.id }
+        let!(:issue) { FactoryGirl.create :issue }
 
         it { is_expected.to have_http_status(200) }
+
         it 'responds with issue' do
           subject
-          expect(json['issue']).to eql(issue_as_json(aria_issue))
+          expect(json['issue']).to eql(issue_as_json(issue))
         end
       end
     end
