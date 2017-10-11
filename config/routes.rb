@@ -4,5 +4,5 @@ Rails.application.routes.draw do
   get '/secret' => 'home#secret'
 
   resources :users, only: %i[create]
-  resources :issues
+  resources :issues, only: %i[create index update show]
 end

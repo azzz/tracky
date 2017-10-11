@@ -2,7 +2,7 @@ class Issue < ApplicationRecord
   STATUSES = %w[pending in_progress resolved].freeze
 
   belongs_to :author, class_name: 'User', inverse_of: :issues
-  belongs_to :assignee, class_name: 'User', inverse_of: :assigned_issues
+  belongs_to :assignee, class_name: 'User', inverse_of: :assigned_issues, optional: true
 
   has_many :statuses, dependent: :destroy
 
