@@ -1,15 +1,16 @@
 RSpec.describe IssuesController do
   let(:json) { JSON.parse response.body }
 
-  def issue_as_json(issue)
-    {'id' => issue.id,
-     'author_id' => issue.author_id,
-     'assignee_id' => issue.assignee_id,
-     'title' => issue.title,
-     'description' => issue.description,
-     'status' => issue.status,
-     'created_at' => issue.created_at.as_json,
-     'updated_at' => issue.updated_at.as_json}
+  def issue_as_json(issues)
+    return issues.map { |issue| issue_as_json(issue) } if issues.respond_to?(:map)
+    {'id' => issues.id,
+     'author_id' => issues.author_id,
+     'assignee_id' => issues.assignee_id,
+     'title' => issues.title,
+     'description' => issues.description,
+     'status' => issues.status,
+     'created_at' => issues.created_at.as_json,
+     'updated_at' => issues.updated_at.as_json}
   end
 
   shared_examples 'validate attributes on update' do
@@ -52,10 +53,10 @@ RSpec.describe IssuesController do
       let(:client1) { FactoryGirl.create :user, :client }
       let(:client2) { FactoryGirl.create :user, :client }
 
-      let!(:manager1_issues) { FactoryGirl.create_list :issue, 3, author: manager1 }
-      let!(:manager2_issues) { FactoryGirl.create_list :issue, 3, author: manager2 }
-      let!(:client1_issues) { FactoryGirl.create_list :issue, 3, author: client1 }
-      let!(:client2_issues) { FactoryGirl.create_list :issue, 3, author: client2 }
+      let!(:manager1_issues) { FactoryGirl.create_list :issue, 2, author: manager1, title: 'T' }
+      let!(:manager2_issues) { FactoryGirl.create_list :issue, 2, author: manager2, title: 'T' }
+      let!(:client1_issues) { FactoryGirl.create_list :issue, 2, author: client1, title: 'T' }
+      let!(:client2_issues) { FactoryGirl.create_list :issue, 2, author: client2, title: 'T' }
 
       context 'for manager' do
         before { request.headers.merge! HTTP_AUTHORIZATION: "Bearer #{token_for_user(manager1)}" }
@@ -64,8 +65,8 @@ RSpec.describe IssuesController do
 
         it 'shows all issues to manager' do
           subject
-          all_issues = (manager1_issues + manager2_issues + client1_issues + client2_issues).map { |el| issue_as_json(el) }
-          expect(json['issues']).to match_array(all_issues)
+          all_issues = manager1_issues + manager2_issues + client1_issues + client2_issues
+          expect(json['issues']).to match_array(issue_as_json(all_issues))
         end
       end
 
@@ -81,8 +82,74 @@ RSpec.describe IssuesController do
 
         it "shows only client's issues in order" do
           subject
-          issues = [issue2, issue3, issue1].map { |el| issue_as_json(el) }
-          expect(json['issues']).to eql(issues)
+          expect(json['issues']).to eql issue_as_json([issue2, issue3, issue1])
+        end
+      end
+    end
+
+    describe 'pagination' do
+      subject { get :index, params: params }
+
+      let(:user) { FactoryGirl.create :user }
+      let(:params) { {} }
+
+      15.times do |i|
+        let!("issue_#{i + 1}") { FactoryGirl.create :issue, author: user, created_at: i.minutes.since }
+      end
+
+      before { request.headers.merge! HTTP_AUTHORIZATION: "Bearer #{token_for_user(user)}" }
+
+      describe 'limit' do
+        it 'limits with default number' do
+          subject
+          expect(json['issues'].count).to eql 10
+        end
+
+        context 'with custom limit' do
+          let(:params) { {limit: 5} }
+
+          it do
+            subject
+            expect(json['issues'].count).to eql 5
+          end
+        end
+
+        context 'with too big limit' do
+          let(:params) { {limit: 1000} }
+
+          it 'does not return more than max limit' do
+            subject
+            expect(json['issues'].count).to eql 15
+          end
+        end
+      end
+
+      describe 'offset' do
+        let(:params) { {limit: 5} }
+
+        it 'does not offset by default' do
+          subject
+          issues = [issue_15, issue_14, issue_13, issue_12, issue_11]
+          expect(json['issues']).to match_array(issue_as_json(issues))
+        end
+
+        context do
+          let(:params) { {limit: 5, offset: 3} }
+
+          it do
+            subject
+            issues = [issue_12, issue_11, issue_10, issue_9, issue_8]
+            expect(json['issues']).to match_array(issue_as_json(issues))
+          end
+        end
+
+        context do
+          let(:params) { {limit: 5, offset: 100} }
+
+          it do
+            subject
+            expect(json['issues']).to be_empty
+          end
         end
       end
     end

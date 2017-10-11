@@ -74,6 +74,12 @@ It does not request password confirmation because it's absolutely UI responsibil
 
 ## GET `/issues` to get list of issues
 
+### Receives
+
+GET arguments:
+- `offset:integer` Optional. A number how it should offset the result. By default, 0. I.e. shows from the beginning.
+- `limit:integer` Optional. A number to limit the response. By default, 10. Maximum, 100.
+
 ### Authorization
 
 Any roles are allowed to get list of issues. Clients receive only issues created by them, but managers receive all existing issues.
@@ -85,7 +91,7 @@ Any roles are allowed to get list of issues. Clients receive only issues created
 |200 | `{issues:array<object>}`| A list of issues                           |
 
 ### Example
-`curl -i -H "Content-Type: application/json" -H "Authorization: Bearer <<token>>" http://localhost:3000/issues`
+`curl -i -H "Content-Type: application/json" -H "Authorization: Bearer <<token>>" http://localhost:3000/issues?limit=42`
 
 ```
   {
