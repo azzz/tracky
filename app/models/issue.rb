@@ -23,5 +23,4 @@ class Issue < ApplicationRecord
   def save_status
     return unless saved_changes.include?(:status)
     statuses.create! name: status
-  end
 end
