@@ -16,7 +16,7 @@ RSpec.describe User do
     let(:daenerys) { FactoryGirl.build :user, :manager }
 
     it { expect(worm).to be_client }
-    it { expect(daenerys).not_to be_client }
+    it { expect(daenerys).to be_client }
   end
 
   describe '#manager?' do
