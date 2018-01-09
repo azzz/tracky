@@ -1,3 +1,5 @@
+[![Build Status](https://semaphoreci.com/api/v1/azzz/tracky/branches/master/badge.svg)](https://semaphoreci.com/azzz/tracky)
+
 # README
 
 Simple issue tracker
