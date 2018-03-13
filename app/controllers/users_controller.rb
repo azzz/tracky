@@ -12,7 +12,7 @@ class UsersController < ApplicationController
   end
 
   def show
-    render json: {user: @user}, except: :password_digest
+    render json: @user
   end
 
   private

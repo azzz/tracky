@@ -2,10 +2,12 @@ class Ability
   include CanCan::Ability
 
   def initialize(user)
-    return visitor_abilities(user) unless user
-
-    manager_abilities(user) if user.manager?
-    client_abilities(user) if user.client?
+    if user
+      manager_abilities(user) if user.manager?
+      client_abilities(user) if user.client?
+    else
+      visitor_abilities(user)
+    end
   end
 
   def manager_abilities(_user)

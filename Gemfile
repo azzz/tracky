@@ -11,6 +11,7 @@ gem 'puma', '~> 3.7'
 gem 'cancancan', '~> 2.0'
 gem 'knock'
 gem 'bcrypt'
+gem 'active_model_serializers'
 
 group :development, :test do
   gem 'pry'
@@ -21,6 +22,10 @@ end
 group :development do
   gem 'listen', '>= 3.0.5', '< 3.2'
   gem 'rspec-rails', '~> 3.6'
+
+  # Linters
+  gem 'rubocop'
+  gem 'rubocop-rspec'
 end
 
 group :test do
